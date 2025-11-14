@@ -493,3 +493,191 @@ SELECT sysdate 오늘
       ,LAST_DAY( sysdate ) 월말
 FROM dual;
 
+-- 44.
+-- 테이블 EMPLOYEES 의 COMMISSION_PCT 를 중복없이 검색하되, 
+-- NULL 이면 0으로 조회하고 내림차순으로 정렬하는 SQL 문을 작성하시오.
+-- DISTINCT : 중복 없이 조회
+-- NVL( 값, 대체할 값 ) : 해당 값이 NULL 이면 지정된 값으로 변환하는 함수
+-- * ORDER BY 의 정렬기준 컬럼은, SELECT 에서 선택한 컬럼만 사용 가능하다.
+
+SELECT DISTINCT NVL(COMMISSION_PCT, 0) "커미션(%)"
+FROM employees
+ORDER BY "커미션(%)" DESC;
+
+/*
+  SELECT 컬럼
+  FROM 테이블
+  WHERE 조건
+  GROUP BY 그룹기준
+  ORDER BY 정렬기준
+
+  * SELEFT 실행순서
+  - FROM ➡️ WHERE ➡️ GROUP BY ➡️ HAVING ➡️ SELECT ➡️ ORDER BY
+  1. 테이블을 선택한다
+  2. 조건에 맞는 데이터를 선택한다
+  3. 그룹기준을 지정한다
+  4. 그룹별로 그룹조건에 맞는 데이터를 선택한다
+  5. 조회할 컬럼을 선택한다
+  6. 조회된 결과를 정렬기준에 따라 정렬
+*/
+
+-- 45.
+-- EMPLOYEES 의 FIRST_NAME, SALARY, COMMISSION_PCT 속성을 이용하여 
+-- 급여, 커미션, 최종급여를 조회하시오. 최종급여를 기준으로 내림차순 정렬하시오.
+-- * 최종급여 = 급여 + (급여 * 커미션)
+-- * NVL2( 값, NULL 아닐 때 값, NULL 일 때 값 )
+-- * NULL 과 값을 연산한 결과는 NULL 이다.
+
+SELECT first_name 이름
+      ,salary 급여
+      ,commission_pct
+      ,NVL(commission_pct, 0) 커미션
+      ,NVL2(commission_pct, salary + (salary * commission_pct), salary) 최종급여
+      ,salary + NVL2(commission_pct, (salary * commission_pct), 0) 최종급여
+FROM employees;
+
+-- * COALESCE
+-- employees 테이블에서
+-- 직원의 이메일이 NULL 이면 전화번호(phone_)number를
+-- 전화번호도 NULL이면 이름(first_name)을 출력하시오.
+
+SELECT employee_id
+      ,COALESCE(email, phone_number, first_name) 연락처
+FROM employees; 
+
+-- * LNNVL
+-- employees 테이블에서 커미션이 0.2 이상이 아닌 직원을 조회하시오.
+
+SELECT *
+FROM employees
+WHERE LNNVL(commission_pct >= 0.2);
+
+-- * NILLIF
+-- employees 테이블의 커미션이 있는 사원만 출력하시오.
+-- (* 최종급여와 급여가 같으면 : 커미션 없음)
+-- (* 최종급여와 급여가 같으면 : 커미션 있음)
+
+SELECT first_name
+      ,(salary + (salary * commission_pct)) 최종급여
+FROM employees
+WHERE NULLIF( (salary + (salary * commission_pct) ), salary ) IS NULL;
+
+-- 46.
+-- DEPARTMENTS 테이블을 참조하여, 사원의 이름과 부서명을 출력하시오.
+-- DECODE( 컬럼명, 조건값1, 반환값1, 조건값2, 반환값2, ... )
+-- : 지정한 컬럼의 값이 조건값에 일치하면 바로 뒤의 반환값을 출력하는 함수
+-- 사원 테이블  : department_id (부서번호)
+
+SELECT first_name 이름
+      ,department_id 부서번호
+      ,DECODE( department_id, 10, 'Administration',
+                              20, 'Marketing',
+                              30, 'Purchasing',
+                              40, 'Human Resources',
+                              50, 'Shipping',
+                              60, 'IT',
+                              70, 'Public Relations',
+                              80, 'Sales',
+                              90, 'Executive',
+                             100, 'Finance',
+                             110,	'Accounting',
+                             120,	'Treasury',
+                             130,	'Corporate Tax',
+                             140,	'Control And Credit',
+                             150,	'Shareholder Services',
+                             160,	'Benefits',
+                             170,	'Manufacturing',
+                             180,	'Construction',
+                             190,	'Contracting',
+                             200,	'Operations',
+                             210,	'IT Support',
+                             220,	'NOC',
+                             230,	'IT Helpdesk',
+                             240,	'Government Sales',
+                             250,	'Retail Sales',
+                             260,	'Recruiting',
+                             270,	'Payroll'
+      ) 부서명
+FROM employees;
+
+SELECT *
+FROM departments;
+
+-- 47.
+-- CASE 문
+-- : 조건식을 만족할 때, 출력할 값을 지정하는 구문
+
+SELECT first_name 이름
+      ,department_id 부서번호
+      ,CASE
+          WHEN department_id = 10 THEN 'Administration'
+          WHEN department_id = 20 THEN 'Marketing'
+          WHEN department_id = 30 THEN 'Purchasing'
+          WHEN department_id = 40 THEN 'Human Resources'
+          WHEN department_id = 50 THEN 'Shipping'
+          WHEN department_id = 60 THEN 'IT'
+          WHEN department_id = 70 THEN 'Public Relations'
+          WHEN department_id = 80 THEN 'Sales'
+          WHEN department_id = 90 THEN 'Executive'
+          WHEN department_id = 100 THEN 'Finance'
+          ELSE '부서없음'
+      END 부서명
+FROM employees;
+
+-- GREATEST/LEAST
+-- employees 테이블에서 사원의
+-- 최종급여, 급여, 보너스25% 중 가장 큰 값과
+-- 최종급여, 급여, 보너스25% 중 가장 작은 값을 출력하시오.
+
+SELECT first_name
+      ,GREATEST((salary + (salary * NVL(commission_pct, 0))), salary, (salary + (salary * 0.25))) 최대
+      ,LEAST((salary + (salary * NVL(commission_pct, 0))), salary, (salary + (salary * 0.25))) 최소
+FROM employees;
+
+-- 그룹함수
+-- 48.
+-- EMPLOYEES 테이블로 부터 전체 사원 수를 구하시오.
+-- COUNT( 컬럼명 )
+-- : 컬럼을 지정하여 NULL 을 제외한 데이터 개수를 반환하는 함수
+-- * NULL 이 없는 데이터라면 어떤 컬럼을 지정하더라도 개수가 같으므로,
+--   일반적으로 COUNT(*) 로 개수를 구한다.
+
+-- COUNT(*) : NULL 도 포함하여 개수를 구함.
+
+SELECT COUNT(*) 사원수
+FROM employees;
+
+-- COUNT(컬럼) : NULL 도 제외하고 개수를 구함.
+
+SELECT COUNT(commission_pct) "성과급이 있는 사원수"
+FROM employees;
+
+-- 49.
+-- 사원들의 최고급여와 최저급여를 구하시오.
+
+SELECT MAX(salary) 최고급여
+      ,MIN(salary) 최저급여
+FROM employees;
+
+-- 50.
+-- 사원들의 급여 합계와 평균을 구하시오.
+
+SELECT SUM(salary) 급여합계
+      ,ROUND(salary) 급여평균
+FROM employees;
+
+-- 51.
+-- 사원들의 급여 표준편차와 분산을 구하시오.
+
+SELECT ROUND( STDDEV(salary), 2 ) 급여표준편차
+      ,ROUND( VARIANCE(salary), 2) 급여분산
+FROM employees;
+
+-- * 부서별 사원 수를 구하시오
+
+SELECT department_id 
+      ,COUNT(*) 사원수
+FROM employees
+GROUP BY department_id
+ORDER BY department_id;
+
