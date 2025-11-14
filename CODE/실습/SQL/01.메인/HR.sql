@@ -288,3 +288,208 @@ SELECT ABS(-20) FROM dual;
 
 -- -12.456 의 절댓값을 구하기
 SELECT ABS(-12.456) FROM dual;
+
+-- 29.
+-- <예시>와 같이 문자열을 대문자, 소문자, 첫글자만 대문자로 
+-- 변환하는 SQL문을 작성하시오.
+-- 원문 : 'AlOhA WoRlD~!'
+
+SELECT 'AlOhA WoRlD~!' AS 원문
+       ,UPPER('AlOhA WoRlD~!') AS 대문자
+       ,LOWER('AlOhA WoRlD~!') AS 소문자
+       ,INITCAP('AlOhA WoRlD~!') AS "첫 글자만 대문자"
+FROM dual;
+
+-- 30.
+-- <예시>와 같이 문자열의 글자 수와 바이트 수를 
+-- 출력하는 SQL문을 작성하시오.
+-- LENGTH('문자열')  : 글자 수
+-- LENGTHB('문자열') : 바이트 수
+
+-- * 영문, 숫자, 빈칸  : 1 byte
+SELECT LENGTH('ALOHA WORLD') AS "글자 수"
+      ,LENGTHB('ALOHA WORLD') AS "바이트 수"
+FROM dual;
+
+-- * 한글             : 3 byte
+SELECT LENGTH('알로하 월드') AS "글자 수"
+      ,LENGTHB('알로하 월드') AS "바이트 수"
+FROM dual;
+
+-- 31.
+-- 두 문자열을 연결하기
+-- CONCAT(문자열1, 문자열2)
+-- : 두 문자열을 연결하여 반환하는 함수
+
+SELECT CONCAT('ALOHA', 'WORLD') AS 함수
+      ,'ALOHA' || 'WORLD' AS 기호
+FROM dual;
+
+-- 32.
+-- 문자열 부분 출력하기
+-- SUBSTR(문자열, 시작번호, 글자수)
+-- SUBSTRB(문자열, 시작번호, 바이트수)
+-- 'www.alohaclass.kr'
+
+-- 영문
+SELECT SUBSTR('www.alohaclass.kr', 1, 3) AS "1"
+      ,SUBSTR('www.alohaclass.kr', 5, 10) AS "2"
+      ,SUBSTR('www.alohaclass.kr', -2, 2) AS "3"
+FROM dual;
+
+SELECT SUBSTRB('www.alohaclass.kr', 1, 3) AS "1"
+      ,SUBSTRB('www.alohaclass.kr', 5, 10) AS "2"
+      ,SUBSTRB('www.alohaclass.kr', -2, 2) AS "3"
+FROM dual;
+
+-- 한글
+SELECT SUBSTR('www.알로하클래스.com', 1, 3) AS "1"
+      ,SUBSTR('www.알로하클래스.com', 5, 6) AS "2"
+      ,SUBSTR('www.알로하클래스.com', -3, 3) AS "3"
+FROM dual;
+
+SELECT SUBSTRB('www.알로하클래스.com', 1, 3) AS "1"
+      ,SUBSTRB('www.알로하클래스.com', 5, 18) AS "2"
+      ,SUBSTRB('www.알로하클래스.com', -3, 3) AS "3"
+FROM dual;
+
+-- 33. 
+-- 문자열에서 특정 문자의 위치를 구하는 함수
+-- INSTR( 문자열, 찾을 문자, 시작 번호, 순서 )
+-- ex) 'ALOHACLASS'
+-- 해당 문자열에서 첫글자 부터 찾아서, 2번째 A의 위치를 구하시오.
+-- INSTR('ALOHACLASS', 'A', 1)
+-- : 해당 문자열에서 'A' 를 1번 위치부터 찾아서 가장 처음 만나는 A의 위치를 반환
+-- INSTR('ALOHACLASS', 'A', 1, 2)
+-- : 해당 문자열에서 'A', 1번 위치부터 찾아서 2번째 나온 A 위치 반환
+
+SELECT INSTR('ALOHACLASS', 'A', 1, 1) AS "1번째 A"
+      ,INSTR('ALOHACLASS', 'A', 1, 2) AS "2번째 A"
+      ,INSTR('ALOHACLASS', 'A', 1, 3) AS "3번째 A"
+      ,INSTR('ALOHACLASS', 'A', 1, 4) AS "4번째 A"
+FROM dual;
+
+-- 34.
+-- 문자열을 왼쪽/오른쪽에 출력하고, 빈공간을 특정 문자로 채우는 함수
+-- LPAD( 문자열, 칸의 수, 채울 문자 )
+-- : 문자열에 지정한 칸을 확보하고, 왼쪽에 특정 문자로 채움
+-- RPAD( 문자열, 칸의 수, 채울 문자 )
+-- : 문자열에 지정한 칸을 확보하고, 오른쪽에 특정 문자로 채움
+-- 'ALOHACLASS'
+
+SELECT LPAD('ALOHACLASS', 20,'#') AS "왼쪽"
+      ,RPAD('ALOHACLASS', 20,'#') AS "오른쪽"
+FROM dual;
+
+-- 주민등록번호 뒷자리 첫 자리를 제외한 나머지 문자를 *로 마스킹하시오.
+
+SELECT RPAD( SUBSTR('020905-3123456', 1, 8), 14,'#') AS 주민번호
+FROM dual;
+
+-- 35.
+-- HIRE_DATE 입사일자를 날짜형식을 지정하여 출력하시오.
+-- 형식 : 2024-03-04 (월) 12:34:56
+-- TO_CHAR( 데이터, '날짜/숫자 형식' )
+-- : 특정 데이터를 문자열 형식으로 변환하는 함수
+
+SELECT first_name AS 이름
+      ,TO_CHAR(hire_date, 'YYYY-MM-DD (DY) HH:MI:SS') AS 입사일자
+      ,hire_date
+FROM employees;
+
+-- 36.
+-- SALARY 급여를 통화형식으로 지정하여 출력하시오.
+
+SELECT first_name AS 이름
+      ,TO_CHAR(salary, '$999,999,999') AS 급여
+      ,salary
+FROM employees;
+
+-- 37.
+-- TO_DATE( 데이터 )
+-- : 문자형 데이터를 날짜형 데이터로 변환하는 함수
+
+SELECT '20251114' 문자
+      ,TO_DATE('20251114', 'YYYYMMDD') AS 날짜1
+      ,TO_DATE('2025/11/14', 'YYYY/MM/DD') AS 날짜2
+      ,TO_DATE('2025-11-14', 'YYYY-MM-DD') AS 날짜3
+      ,TO_DATE('2025.11.14', 'YYYY.MM.DD') AS 날짜4
+FROM dual;
+
+-- 38.
+-- TO_NUMBER( 데이터 )
+-- : 문자형 데이터를 숫자형 데이터로 변환하는 함수
+
+SELECT '1,200,000' 문자
+      ,TO_NUMBER('1,200,000', '999,999,999') AS 숫자
+FROM dual;
+
+-- 39.
+-- 어제, 오늘, 내일 날짜를 출력하시오.
+-- sysdate : 현재 날짜/시간 정보를 가지고 있는 키워드
+-- 2023/05/22 - YYYY/MM/DD 형식으로 출력
+-- 날짜 데이터 --> 문자 데이터 변환
+
+SELECT sysdate FROM dual;
+
+SELECT sysdate-1 AS 어재
+      ,sysdate AS 오늘
+      ,sysdate+1 AS 내일
+FROM dual;
+
+-- 40.
+-- 사원의 근무달수와 근속연수를 구하시오.
+-- MONTHS_BETWEEN( A, B )
+-- - 날짜 A부터 B까지 개월 수 차이를 반환하는 함수
+--   (단, A > B 즉, A가 더 최근 날짜로 지정해야 양수로 반환)
+
+SELECT first_name 이름
+      ,TO_CHAR( hire_date, 'YYYY.MM.DD') 입사일자
+      ,TO_CHAR( sysdate, 'YYYY.MM.DD') 오늘
+      ,TRUNC (MONTHS_BETWEEN( sysdate, hire_date ))  || '개월' 근무달수
+      ,TRUNC (MONTHS_BETWEEN( sysdate, hire_date ) / 12)  || '년' 근속연수
+FROM employees;
+
+-- 41.
+-- 오늘로부터 6개월 후의 날짜를 구하시오.
+-- ADD_MONTHS( 날짜, 개월 수 )
+-- : 지정한 날짜로부터 해당 개월 수를 후의 날짜를 반환하는 함수
+
+SELECT sysdate 오늘
+      ,ADD_MONTHS( sysdate, 6) "6개월 후"
+      ,ADD_MONTHS( sysdate, -6) "6개월 전"
+FROM dual;
+
+SELECT '2025/10/20' 개강
+      ,ADD_MONTHS( '2025/10/20', 6) 종강
+FROM dual;
+
+-- 42.
+-- 오늘 이후 돌아오는 토요일을 구하시오.
+-- NEXT_DAY( 날짜, 요일 )
+-- : 지정한 날짜 이후 돌아오는 요일을 반환하는 함수
+-- 일 월 화 수 목 금 토
+-- 1  2  3  4  5 6  7
+
+SELECT sysdate 오늘
+      ,NEXT_DAY( sysdate, 7 ) "다음 토요일"
+FROM dual;
+
+-- 43.
+-- 오늘 날짜와 해당 월의 월초, 월말 일자를 구하시오.
+-- 월초 : TRUNC( 날짜, 'MM' )
+-- 월말 : LAST_DAY( 날짜 )
+/*
+      날짜 데이터 : XXXXXXX.YYYYYYYY
+      1970년1월1일 00시00분00초00ms
+      지난 일자를 정수로 계산, 시간 정보는 소수부분으로 계산
+      TRUNC( XXXXXXX.YYYYYYYY ) --> XXXXXXX
+      정수 부분인 년월일만 남는다.
+      마찬가지로, 월 단위를 기준으로 절삭하면 월초를 구할 수 있다.
+*/
+
+SELECT sysdate 오늘
+      ,TRUNC( sysdate, 'MM' ) 월초
+      ,LAST_DAY( sysdate ) 월말
+FROM dual;
+
